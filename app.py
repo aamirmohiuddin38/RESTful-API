@@ -5,7 +5,7 @@ app = Flask(__name__)
 api = Api(app)
 
 def checkPostedData(postedData, functionName):
-    if functionName == "add":
+    if functionName == "add" or functionName == "sub":
         if "x" not in postedData or "y" not in postedData:
             return 301
         else:
@@ -38,8 +38,38 @@ class Add(Resource):
             "Status Code" : statusCode
         }
         return jsonify(retMap)
+    
+class Subtract(Resource):
+    def post(self):
+        #Get the postedData
+        postedData = request.get_json()
+
+        #Check if data is sent or not
+        statusCode = checkPostedData(postedData, "sub")
+        if (statusCode != 200):
+            retJson = {
+                "Message" : "Error happened  missing argument",
+                "Status Code" : statusCode
+            }
+            return jsonify(retJson)
+
+        num1 = postedData["x"]
+        num2 = postedData["y"]
+        
+        #Convert data to int types if not
+        num1 = int(num1)
+        num2 = int(num2)
+        result = num1 - num2
+
+        retMap = {
+            "Message" : result,
+            "Status Code" : statusCode
+        }
+        return jsonify(retMap)
+    
 
 api.add_resource(Add, "/add")
+api.add_resource(Subtract, "/subtract")
 
 @app.route('/')
 def project_info():
